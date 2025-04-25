@@ -177,6 +177,11 @@ pub unsafe extern "C" fn SCTLSHandshakeGetCiphers(
 }
 
 #[no_mangle]
+pub unsafe extern "C" fn SCTLSHandshakeGetFirstCipher(j: &mut HandshakeParams) -> u16 {
+    j.ciphersuites.first().map(|&v| *v).unwrap_or(0)
+}
+
+#[no_mangle]
 pub unsafe extern "C" fn SCTLSHandshakeGetExtensions(
     hs: &mut HandshakeParams, out: *mut usize,
 ) -> *const u16 {
