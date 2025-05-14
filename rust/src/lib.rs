@@ -94,6 +94,7 @@ pub mod kerberos;
 pub mod detect;
 pub mod utils;
 
+pub mod tls_version;
 pub mod ja4;
 pub mod handshake;
 

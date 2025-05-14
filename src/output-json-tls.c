@@ -378,9 +378,6 @@ static void JsonTlsLogClientCert(
 
 static void JsonTlsLogClientHandshake(SCJsonBuilder *js, SSLState *ssl_state)
 {
-    const uint16_t *val;
-    size_t i, nr;
-
     if (ssl_state->client_connp.hs == NULL) {
         return;
     }
@@ -392,44 +389,16 @@ static void JsonTlsLogClientHandshake(SCJsonBuilder *js, SSLState *ssl_state)
 
     SCJbOpenObject(js, "client_handshake");
 
-    const uint16_t vers = SCTLSHandshakeGetVersion(ssl_state->client_connp.hs);
-    JsonTlsLogVersion(js, vers);
-
-    val = SCTLSHandshakeGetCiphers(ssl_state->client_connp.hs, &nr);
-    if (nr > 0) {
-        SCJbOpenArray(js, "ciphers");
-        for (i = 0; i < nr; i++) {
-            SCJbAppendUint(js, val[i]);
-        }
-        SCJbClose(js);
-    }
-
-    val = SCTLSHandshakeGetExtensions(ssl_state->client_connp.hs, &nr);
-    if (nr > 0) {
-        SCJbOpenArray(js, "exts");
-        for (i = 0; i < nr; i++) {
-            SCJbAppendUint(js, val[i]);
-        }
-        SCJbClose(js);
-    }
-
-    val = SCTLSHandshakeGetSigAlgs(ssl_state->client_connp.hs, &nr);
-    if (nr > 0) {
-        SCJbOpenArray(js, "sig_algs");
-        for (i = 0; i < nr; i++) {
-            SCJbAppendUint(js, val[i]);
-        }
-        SCJbClose(js);
-    }
+    SCTLSHandshakeLogVersion(ssl_state->client_connp.hs, js);
+    SCTLSHandshakeLogCiphers(ssl_state->client_connp.hs, js);
+    SCTLSHandshakeLogExtensions(ssl_state->client_connp.hs, js);
+    SCTLSHandshakeLogSigAlgs(ssl_state->client_connp.hs, js);
 
     SCJbClose(js);
 }
 
 static void JsonTlsLogServerHandshake(SCJsonBuilder *js, SSLState *ssl_state)
 {
-    const uint16_t *val;
-    size_t i, nr;
-
     if (ssl_state->server_connp.hs == NULL) {
         return;
     }
@@ -440,20 +409,9 @@ static void JsonTlsLogServerHandshake(SCJsonBuilder *js, SSLState *ssl_state)
 
     SCJbOpenObject(js, "server_handshake");
 
-    const uint16_t vers = SCTLSHandshakeGetVersion(ssl_state->server_connp.hs);
-    JsonTlsLogVersion(js, vers);
-
-    const uint16_t choosen_cipher = SCTLSHandshakeGetFirstCipher(ssl_state->server_connp.hs);
-    SCJbSetUint(js, "cipher", choosen_cipher);
-
-    val = SCTLSHandshakeGetExtensions(ssl_state->server_connp.hs, &nr);
-    if (nr > 0) {
-        SCJbOpenArray(js, "exts");
-        for (i = 0; i < nr; i++) {
-            SCJbAppendUint(js, val[i]);
-        }
-        SCJbClose(js);
-    }
+    SCTLSHandshakeLogVersion(ssl_state->server_connp.hs, js);
+    SCTLSHandshakeLogFirstCipher(ssl_state->server_connp.hs, js);
+    SCTLSHandshakeLogExtensions(ssl_state->server_connp.hs, js);
 
     SCJbClose(js);
 }
